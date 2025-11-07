@@ -1,0 +1,58 @@
+header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: blue;
+    margin: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    border: 2px solid #1a75ff;
+}
+
+th {
+    background-color: #004de6;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #66a3ff;
+}
+
+td {
+    border: 1px solid #66a3ff;
+    padding: 12px;
+    text-align: left;
+    color: #004de6;
+    vertical-align: middle;
+}
+
+tr:nth-child(even) {
+    background-color: #e6f0ff;
+}
+
+tr:hover {
+    background-color: #cce0ff;
+}
+
+.song-thumbnail {
+    width: 160px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+}
+
+iframe {
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 200px;
+    aspect-ratio: 16/9;
+    border: none;
+}
