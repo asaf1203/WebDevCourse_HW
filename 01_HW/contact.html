@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send a Message</title>
+    <link rel="stylesheet" href="contact.css">
+</head>
+
+<body>
+    <header>
+        <h1>Contact</h1>
+    </header>
+    <div class="container">
+        <h1>Send a Message</h1>
+        <form>
+            <table class="outer-table">
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" name="name"></td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td><input type="email" name="email"></td>
+                </tr>
+                <tr>
+                    <td>Phone:</td>
+                    <td><input type="tel" name="phone"></td>
+                </tr>
+                <tr>
+                    <td>Subject:</td>
+                    <td><input type="text" name="subject"></td>
+                </tr>
+                <tr class="message-row">
+                    <td class="message-label-cell">Message:</td>
+                    <td><textarea name="message"></textarea></td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="full-width-cell" style="text-align: center;">
+                        <button type="submit">Send Message</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <script>
+        // Show an alert when the form is submitted and prevent actual submission
+        (function () {
+            var form = document.querySelector('form');
+            if (!form) return;
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                alert('Your message has been sent!');
+            });
+        })();
+    </script>
+</body>
+
+</html>

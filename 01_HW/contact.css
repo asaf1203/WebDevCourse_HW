@@ -1,0 +1,191 @@
+body {
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    display: flex;
+    flex-direction: column;
+    /* stack header above the container/table */
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    min-height: 100vh;
+    margin: 0;
+    background-color: lightblue;
+    /* Neon Yellow */
+}
+
+.container {
+    background-color: #699bff;
+    /* Hot Pink */
+    border: 8px groove #2b50e2;
+    /* Thick purple groove border */
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.6);
+    /* Purple glow */
+    width: 400px;
+    /* Adjust as needed */
+    text-align: center;
+}
+
+h1 {
+    font-size: 1.8em;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-shadow: 4px 4px 0px #4CAF50,
+        /* Green shadow */
+        8px 8px 0px #2196F3;
+    /* Blue shadow */
+    animation: wobble 2s infinite;
+    /* Add wobble animation */
+}
+
+@keyframes wobble {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px) rotate(-5deg);
+    }
+
+    75% {
+        transform: translateX(5px) rotate(5deg);
+    }
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    border: 5px double #32CD32;
+    /* Lime green double border */
+}
+
+td {
+    border: 3px dashed #143bff;
+    /* Hot pink dashed border */
+    padding: 8px;
+    vertical-align: middle;
+    text-align: left;
+}
+
+td:first-child {
+    width: 30%;
+    /* Adjust label column width */
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+textarea {
+    width: calc(100% - 10px);
+    /* Adjust for padding */
+    padding: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    /* Include padding and border in the element's total width and height */
+}
+
+textarea {
+    resize: vertical;
+    /* Allow vertical resizing */
+    min-height: 80px;
+    /* Minimum height for textarea */
+}
+
+.message-cell {
+    padding: 0;
+    /* Remove default padding for message cell to make textarea fill it */
+}
+
+.message-cell td {
+    border: none;
+    /* Remove border for the cell containing the message textarea */
+    padding: 0;
+}
+
+.message-label-cell {
+    vertical-align: top;
+    /* Align "Message" label to the top */
+}
+
+.full-width-cell {
+    border: 1px solid #ccc;
+    padding: 8px;
+}
+
+button {
+    background-color: rgb(125, 223, 210);
+    /* Bright green */
+    border: 6px dotted #4c00ff;
+    /* Magenta dotted border */
+    padding: 20px 40px;
+    font-size: 2em;
+    cursor: pointer;
+    border-radius: 50px;
+    /* Giant cartoon capsule */
+    box-shadow: 0 8px 0 #006eff;
+    /* Red bottom shadow for 3D effect */
+    transform: rotate(-3deg);
+    /* Slightly tilted */
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #FFFF00;
+    /* Yellow on hover */
+    transform: rotate(3deg) scale(1.1);
+    /* Wiggle and grow on hover */
+    box-shadow: 0 12px 0 #FF0000;
+    /* Bigger shadow on hover */
+}
+
+/* Specific styling to match the image's layout more closely for the message section */
+.message-row td:first-child {
+    border-right: 1px solid #ccc;
+    /* Add right border to message label cell */
+    border-bottom: 1px solid #ccc;
+    /* Add bottom border */
+    border-top: 1px solid #ccc;
+    /* Add top border */
+}
+
+.message-row td:last-child {
+    border-left: none;
+    /* Remove left border for message input cell */
+    border-bottom: 1px solid #ccc;
+    /* Add bottom border */
+    border-top: 1px solid #ccc;
+    /* Add top border */
+}
+
+.message-row td {
+    vertical-align: top;
+    padding: 8px;
+    /* Reset padding for these cells */
+}
+
+/* Adjusting for the overall container border as well */
+.outer-table {
+    border: 1px solid #ccc;
+    /* This border will wrap the entire table content */
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.outer-table tr:first-child td {
+    border-top: none;
+    /* Remove top border of the first row's cells */
+}
+
+.outer-table tr:last-child td {
+    border-bottom: none;
+    /* Remove bottom border of the last row's cells */
+}
+
+.outer-table td {
+    border-left: none;
+    border-right: none;
+}
