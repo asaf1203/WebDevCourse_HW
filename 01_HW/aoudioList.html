@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Table Structure</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            padding: 20px;
+        }
+
+        /* Basic Table Styling to Match the Look */
+        table {
+            width: 80%;
+            /* Takes up most of the page width */
+            margin: 0 auto;
+            border-collapse: collapse;
+            /* Removes double borders */
+            border: 1px solid #ccc;
+            /* Outer border */
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        /* Styling for Table Header Cells (<th>) */
+        th {
+            background-color: #444444;
+            /* Dark gray header background */
+            color: white;
+            /* White text */
+            border: 1px solid #ccc;
+            padding: 10px 15px;
+            font-weight: bold;
+            text-align: center;
+            /* Center header text like in the image */
+            vertical-align: middle;
+        }
+
+        /* Styling for empty data cells (for the empty rows) */
+        td {
+            border: 1px solid #ccc;
+            padding: 15px 15px;
+            /* Add generous padding for content space */
+            height: 80px;
+            /* Gives space where the content/images would go */
+        }
+
+        .album-cover {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            display: block;
+        }
+
+        /* Adjusting header alignment for specific columns */
+        th:first-child,
+        /* Cover */
+        th:nth-child(4),
+        /* Year */
+        th:last-child
+
+        /* Download */
+            {
+            width: 10%;
+        }
+
+        th:nth-child(5) {
+            /* Play column is wider */
+            width: 25%;
+        }
+
+        /* Audio player styling */
+        audio {
+            width: 100%;
+            height: 40px;
+            outline: none;
+        }
+
+        /* Ensure audio cells have enough space */
+        td:nth-child(5) {
+            min-width: 250px;
+            padding: 10px;
+        }
+
+        /* Download link styling */
+        .download-link {
+            color: #0066cc;
+            /* Blue color */
+            text-decoration: none;
+            /* Remove initial underline */
+            transition: text-decoration 0.3s ease;
+        }
+
+        .download-link:hover {
+            text-decoration: underline;
+            /* Add underline on hover */
+        }
+    </style>
+</head>
+
+<body>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Cover</th>
+                <th>Title</th>
+                <th>Artist</th>
+                <th>Year</th>
+                <th>Play</th>
+                <th>Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><img src="https://img.youtube.com/vi/4fWyzwo1xg0/mqdefault.jpg"
+                        alt="The Sound of Silence Album Cover" class="album-cover"></td>
+                <td>The Sound of Silence</td>
+                <td>Simon & Garfunkel</td>
+                <td>1966</td>
+                <td>
+                    <audio controls>
+                        <source src="AudioFiles/Simon and Garfunkel - The Sound of Silence (1966).mp3"
+                            type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </td>
+                <td>
+                    <a href="AudioFiles/Simon and Garfunkel - The Sound of Silence (1966).mp3"
+                        download="The Sound of Silence.mp3" class="download-link">
+                        Download
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td><img src="https://img.youtube.com/vi/4G-YQA_bsOU/mqdefault.jpg"
+                        alt="Bridge Over Troubled Water Album Cover" class="album-cover"></td>
+                <td>Bridge Over Troubled Water</td>
+                <td>Simon & Garfunkel</td>
+                <td>1970</td>
+                <td>
+                    <audio controls>
+                        <source src="AudioFiles/Simon & Garfunkel - Bridge Over Troubled Water (Audio).mp3"
+                            type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </td>
+                <td>
+                    <a href="AudioFiles/Simon & Garfunkel - Bridge Over Troubled Water (Audio).mp3"
+                        download="Bridge Over Troubled Water.mp3" class="download-link">
+                        Download
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+
+</html>
