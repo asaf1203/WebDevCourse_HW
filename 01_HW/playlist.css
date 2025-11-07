@@ -5,8 +5,28 @@ header {
 }
 
 header h1 {
-    color: blue;
     margin: 0;
+}
+
+/* Shared blue header style used by the page header and table headers */
+.header-blue {
+    background-color: #004de6;
+    color: white;
+}
+
+/* Row highlight: light blue background, larger bold blue text
+   Use by adding class="row-highlight" to a <tr> */
+.row-highlight,
+.row-highlight th,
+.row-highlight td {
+    background-color: #e6f4ff;
+    /* light blue */
+    color: #004de6;
+    /* blue text */
+    font-weight: 700;
+    /* bold */
+    font-size: 5.05rem;
+    /* slightly larger text */
 }
 
 table {
@@ -17,8 +37,6 @@ table {
 }
 
 th {
-    background-color: #004de6;
-    color: white;
     padding: 12px;
     text-align: left;
     border: 1px solid #66a3ff;
