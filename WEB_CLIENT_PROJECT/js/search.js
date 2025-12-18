@@ -25,17 +25,40 @@ const playerModal = document.getElementById('playerModal');
 const params = new URLSearchParams(location.search);
 if (params.get("q")) {
   query.value = params.get("q");
-  search();
+  // Try to load cached results first
+  const cachedResults = localStorage.getItem("lastSearchResults");
+  const lastSearch = localStorage.getItem("lastSearch");
+  
+  if (cachedResults && lastSearch === params.get("q")) {
+    // Use cached results
+    console.log('Using cached results');
+    showResults(JSON.parse(cachedResults));
+  } else {
+    // Make new API call
+    search();
+  }
 } else {
   // Check for last search in localStorage
   const lastSearch = localStorage.getItem("lastSearch");
-  if (lastSearch) {
+  const cachedResults = localStorage.getItem("lastSearchResults");
+  
+  if (lastSearch && cachedResults) {
     query.value = lastSearch;
-    search();
+    // Display cached results without making API call
+    console.log('Using cached results from last session');
+    showResults(JSON.parse(cachedResults));
   }
 }
 
 searchBtn.onclick = search;
+
+// Add Enter key support for search input
+query.addEventListener('keypress', function(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault(); // Prevent form submission if in a form
+    search();
+  }
+});
 
 function search() {
   const q = query.value;
@@ -87,7 +110,13 @@ function search() {
           return combinedData;
         });
     })
-    .then(showResults)
+    .then(data => {
+      // Save results to localStorage for caching
+      if (data && data.length > 0) {
+        localStorage.setItem("lastSearchResults", JSON.stringify(data));
+      }
+      showResults(data);
+    })
     .catch(error => {
       console.error('Search Error:', error);
       results.innerHTML = `<div class="col-12 text-center"><div class="alert alert-danger">Error: ${error.message}</div></div>`;
@@ -243,15 +272,49 @@ document.getElementById('confirmAddBtn').onclick = function () {
   // Close playlist modal
   bootstrap.Modal.getInstance(document.getElementById('playlistModal')).hide();
 
-  // Show success message
-  alert(`Video added to "${playlistName}" successfully!`);
+  // Show success toast notification with the specific playlist name
+  showSuccessToast(playlistName);
 
   // Refresh search results to update the "already in favorites" badges
-  search();
+  // Use cached results if available to avoid API call
+  const cachedResults = localStorage.getItem("lastSearchResults");
+  if (cachedResults) {
+    showResults(JSON.parse(cachedResults));
+  } else {
+    search();
+  }
 };
 
 function logout() {
   sessionStorage.removeItem("currentUser");
   localStorage.removeItem("loggedUser");
   location.href = "index.html";
+}
+
+// Show profile picture in modal
+function showProfilePicture() {
+  const profilePictureModalImg = document.getElementById('profilePictureModalImg');
+  profilePictureModalImg.src = user.imageUrl;
+  const modal = new bootstrap.Modal(document.getElementById('profilePictureModal'));
+  modal.show();
+}
+
+// Show success toast notification
+function showSuccessToast(playlistName) {
+  const toastElement = document.getElementById('successToast');
+  const toastBody = toastElement.querySelector('.toast-body');
+  
+  // Update the toast message with the specific playlist link
+  const encodedPlaylistName = encodeURIComponent(playlistName);
+  toastBody.innerHTML = `
+    <i class="fas fa-check-circle me-2"></i>
+    Song was added successfully to <strong>${playlistName}</strong>! 
+    <a href="playlists.html?pl=${encodedPlaylistName}" class="text-white fw-bold text-decoration-underline">Visit playlist →</a>
+  `;
+  
+  const toast = new bootstrap.Toast(toastElement, {
+    autohide: true,
+    delay: 5000  // 5 seconds
+  });
+  toast.show();
 }
