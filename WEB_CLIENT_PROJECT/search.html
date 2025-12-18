@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Search</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark"
+        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container-fluid">
+            <!-- Navigation Links -->
+            <div class="navbar-nav me-auto">
+                <a class="nav-link active" href="search.html">
+                    <i class="fas fa-search me-1"></i>Search
+                </a>
+                <a class="nav-link" href="playlists.html">
+                    <i class="fas fa-music me-1"></i>Playlists
+                </a>
+            </div>
+
+            <!-- User Info -->
+            <div class="d-flex align-items-center" id="userInfo">
+                <span class="navbar-text me-2" id="userName">Loading...</span>
+                <img id="userImg" class="rounded-circle" width="40" height="40" style="border: 2px solid white;">
+                <button class="btn btn-outline-light ms-2" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4" style="padding-top: 20px;">
+
+        <!-- SEARCH -->
+        <div class="input-group mb-4">
+            <input id="query" class="form-control form-control-lg" placeholder="search for songs, artists, albums...">
+            <button class="btn btn-primary btn-lg" id="searchBtn">
+                <i class="fas fa-search me-2"></i>search
+            </button>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="row" id="results"></div>
+
+    </div>
+
+    <!-- PLAYER MODAL -->
+    <div class="modal fade" id="playerModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <iframe id="player" width="100%" height="400" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD TO PLAYLIST MODAL -->
+    <div class="modal fade" id="playlistModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add to Playlist</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Select Playlist:</label>
+                        <select class="form-select" id="playlistSelect">
+                            <option value="">Choose existing playlist...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Or create new playlist:</label>
+                        <input type="text" class="form-control" id="newPlaylistName" placeholder="Enter playlist name">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="confirmAddBtn">Add to Playlist</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/search.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

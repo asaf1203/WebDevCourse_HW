@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Playlists</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark"
+        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container-fluid">
+            <!-- Navigation Links -->
+            <div class="navbar-nav me-auto">
+                <a class="nav-link" href="search.html">
+                    <i class="fas fa-search me-1"></i>Search
+                </a>
+                <a class="nav-link active" href="playlists.html">
+                    <i class="fas fa-music me-1"></i>Playlists
+                </a>
+            </div>
+
+            <!-- User Info -->
+            <div class="d-flex align-items-center" id="userInfo">
+                <span class="navbar-text me-2" id="userName">Loading...</span>
+                <img id="userImg" class="rounded-circle" width="40" height="40" style="border: 2px solid white;">
+                <button class="btn btn-outline-light ms-2" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row vh-100" style="margin-top: -56px; padding-top: 56px;">
+
+            <!-- SIDEBAR -->
+            <aside class="col-3 bg-dark text-white p-3">
+                <h4>My Library</h4>
+                <button class="btn btn-success w-100 my-2" onclick="newPlaylist()">
+                    <i class="fas fa-plus me-2"></i>Playlist
+                </button>
+                <ul class="list-group" id="plList"></ul>
+            </aside>
+
+            <!-- CONTENT -->
+            <main class="col p-4">
+                <h4 id="plTitle">Select a playlist</h4>
+                <div class="input-group mb-3">
+                    <input class="form-control" id="filter" placeholder="Search songs in playlist...">
+                    <button class="btn btn-outline-secondary" onclick="sortAZ()">
+                        <i class="fas fa-sort-alpha-down"></i> A-Z
+                    </button>
+                </div>
+                <div id="songs" class="row"></div>
+            </main>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/playlists.js"></script>
+</body>
+
+</html>
