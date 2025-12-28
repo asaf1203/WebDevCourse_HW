@@ -147,9 +147,16 @@ function renderSongs() {
     const rating = s.rating || 0;
     const starsHtml = generateClickableStars(rating, i);
     
+    // Check if it's an MP3 file or YouTube video
+    const isMP3 = s.type === 'mp3';
+    const clickAction = isMP3 ? `playMP3('${s.url}', '${s.title}')` : `playVideo('${s.id}')`;
+    
     div.innerHTML = `
       <div class="card mb-3">
-        <img src="${s.img}" class="card-img-top" style="cursor:pointer" onclick="playVideo('${s.id}')">
+        <div class="position-relative">
+          <img src="${s.img}" class="card-img-top" style="cursor:pointer" onclick="${clickAction}">
+          ${isMP3 ? '<span class="badge bg-success position-absolute top-0 start-0 m-2">MP3</span>' : ''}
+        </div>
         <div class="card-body">
           <small class="song-title" title="${s.title}">${s.title}</small>
           
@@ -271,6 +278,46 @@ function updateStarsDisplay(songIndex, rating) {
 // Play video in modal (optional - enhance existing functionality)
 function playVideo(videoId) {
   window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+}
+
+// Play MP3 file
+function playMP3(url, title) {
+  // Create audio player modal
+  const modalHtml = `
+    <div class="modal fade" id="mp3PlayerModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-music me-2"></i>${title}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <audio controls autoplay class="w-100" style="margin-top: 20px;">
+              <source src="${url}" type="audio/mpeg">
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  
+  // Remove existing modal if any
+  const existingModal = document.getElementById('mp3PlayerModal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
+  // Add modal to body
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  
+  // Show modal
+  const modal = new bootstrap.Modal(document.getElementById('mp3PlayerModal'));
+  modal.show();
+  
+  // Clean up when modal is closed
+  document.getElementById('mp3PlayerModal').addEventListener('hidden.bs.modal', function() {
+    this.remove();
+  });
 }
 
 function remove(i) {

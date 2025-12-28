@@ -1,2 +1,4 @@
 .DS_Store
 WEB_CLIENT_PROJECT/node_modules/
+WEB_CLIENT_PROJECT/uploads/
+*.mp3

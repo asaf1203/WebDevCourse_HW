@@ -46,6 +46,9 @@
             <button class="btn btn-primary btn-lg" id="searchBtn">
                 <i class="fas fa-search me-2"></i>search
             </button>
+            <button class="btn btn-success btn-lg" onclick="openUploadModal()">
+                <i class="fas fa-upload me-2"></i>Upload MP3
+            </button>
         </div>
 
         <!-- RESULTS -->
@@ -101,6 +104,47 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-success" id="confirmAddBtn">Add to Playlist</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPLOAD MP3 MODAL -->
+    <div class="modal fade" id="uploadModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload MP3 File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Select MP3 File:</label>
+                        <input type="file" class="form-control" id="mp3FileInput" accept=".mp3,audio/mpeg">
+                        <small class="text-muted">Max size: 10MB</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Song Title:</label>
+                        <input type="text" class="form-control" id="mp3Title" placeholder="Enter song title">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Select Playlist:</label>
+                        <select class="form-select" id="uploadPlaylistSelect">
+                            <option value="">Choose existing playlist...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Or create new playlist:</label>
+                        <input type="text" class="form-control" id="uploadNewPlaylistName" placeholder="Enter playlist name">
+                    </div>
+                    <div id="uploadProgress" class="progress d-none mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div id="uploadError" class="alert alert-danger d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="confirmUploadBtn" onclick="uploadMP3()">Upload & Add to Playlist</button>
                 </div>
             </div>
         </div>

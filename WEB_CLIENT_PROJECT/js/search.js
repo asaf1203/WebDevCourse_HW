@@ -141,6 +141,7 @@ function search() {
   const q = query.value;
   if (!q) return;
 
+  const params = new URLSearchParams(location.search);
   params.set("q", q);
   history.replaceState(null, "", "?" + params.toString());
 
@@ -404,4 +405,153 @@ function showSuccessToast(playlistName) {
     delay: 5000  // 5 seconds
   });
   toast.show();
+}
+
+// Open upload modal
+function openUploadModal() {
+  const uploadPlaylistSelect = document.getElementById('uploadPlaylistSelect');
+  uploadPlaylistSelect.innerHTML = '<option value="">Choose existing playlist...</option>';
+  
+  Object.keys(userPlaylists).forEach(name => {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    uploadPlaylistSelect.appendChild(option);
+  });
+  
+  // Clear inputs
+  document.getElementById('mp3FileInput').value = '';
+  document.getElementById('mp3Title').value = '';
+  document.getElementById('uploadNewPlaylistName').value = '';
+  document.getElementById('uploadError').classList.add('d-none');
+  document.getElementById('uploadProgress').classList.add('d-none');
+  
+  new bootstrap.Modal(document.getElementById('uploadModal')).show();
+}
+
+// Upload MP3 file
+async function uploadMP3() {
+  const fileInput = document.getElementById('mp3FileInput');
+  const titleInput = document.getElementById('mp3Title');
+  const playlistSelect = document.getElementById('uploadPlaylistSelect');
+  const newPlaylistInput = document.getElementById('uploadNewPlaylistName');
+  const uploadBtn = document.getElementById('confirmUploadBtn');
+  const errorDiv = document.getElementById('uploadError');
+  const progressDiv = document.getElementById('uploadProgress');
+  const progressBar = progressDiv.querySelector('.progress-bar');
+  
+  // Validation
+  if (!fileInput.files || !fileInput.files[0]) {
+    errorDiv.textContent = 'Please select an MP3 file';
+    errorDiv.classList.remove('d-none');
+    return;
+  }
+  
+  const title = titleInput.value.trim();
+  if (!title) {
+    errorDiv.textContent = 'Please enter a song title';
+    errorDiv.classList.remove('d-none');
+    return;
+  }
+  
+  const playlistName = playlistSelect.value || newPlaylistInput.value.trim();
+  if (!playlistName) {
+    errorDiv.textContent = 'Please select or create a playlist';
+    errorDiv.classList.remove('d-none');
+    return;
+  }
+  
+  const file = fileInput.files[0];
+  
+  // Disable button and show progress
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = 'Uploading...';
+  errorDiv.classList.add('d-none');
+  progressDiv.classList.remove('d-none');
+  progressBar.style.width = '0%';
+  
+  try {
+    // Create form data
+    const formData = new FormData();
+    formData.append('mp3file', file);
+    
+    // Upload file
+    const response = await fetch('/api/upload-mp3', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sessionToken}`
+      },
+      body: formData
+    });
+    
+    progressBar.style.width = '50%';
+    
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Upload failed');
+    }
+    
+    const data = await response.json();
+    progressBar.style.width = '75%';
+    
+    // Try to get YouTube thumbnail for the song
+    let songImage;
+    try {
+      const youtubeResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=${encodeURIComponent(title)}&key=${YOUTUBE_API_KEY}`);
+      if (youtubeResponse.ok) {
+        const youtubeData = await youtubeResponse.json();
+        if (youtubeData.items && youtubeData.items.length > 0) {
+          songImage = youtubeData.items[0].snippet.thumbnails.medium.url;
+          console.log('Found YouTube thumbnail for:', title);
+        }
+      }
+    } catch (error) {
+      console.log('Could not fetch YouTube thumbnail, using default');
+    }
+    
+    // Fallback to SVG icon if YouTube search failed
+    if (!songImage) {
+      songImage = 'data:image/svg+xml;base64,' + btoa(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180">
+          <rect width="320" height="180" fill="#667eea"/>
+          <circle cx="160" cy="90" r="50" fill="rgba(255,255,255,0.2)"/>
+          <path d="M140 70 L140 110 C140 115 135 120 130 120 C125 120 120 115 120 110 C120 105 125 100 130 100 C132 100 134 101 135 102 L135 75 L170 70 L170 100 C170 105 165 110 160 110 C155 110 150 105 150 100 C150 95 155 90 160 90 C162 90 164 91 165 92 L165 65 Z" fill="white"/>
+          <text x="160" y="155" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">MP3 AUDIO</text>
+        </svg>
+      `);
+    }
+    
+    // Add to playlist
+    if (!userPlaylists[playlistName]) {
+      userPlaylists[playlistName] = [];
+    }
+    
+    userPlaylists[playlistName].push({
+      id: data.file.filename,
+      title: title,
+      img: songImage,
+      rating: 0,
+      type: 'mp3',
+      url: data.file.url,
+      originalName: data.file.originalName
+    });
+    
+    // Save to server
+    await savePlaylistsToServer();
+    progressBar.style.width = '100%';
+    
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
+    
+    // Show success message
+    showSuccessToast(playlistName);
+    
+  } catch (error) {
+    console.error('Upload error:', error);
+    errorDiv.textContent = error.message;
+    errorDiv.classList.remove('d-none');
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = 'Upload & Add to Playlist';
+    progressDiv.classList.add('d-none');
+  }
 }

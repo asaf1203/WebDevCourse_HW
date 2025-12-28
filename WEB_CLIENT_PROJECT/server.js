@@ -1,13 +1,48 @@
 const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
+const multer = require('multer');
 
 const app = express();
 const PORT = 3000;
 
+// Configure multer for MP3 file uploads
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const uploadsDir = path.join(__dirname, 'uploads');
+    try {
+      await fs.mkdir(uploadsDir, { recursive: true });
+      cb(null, uploadsDir);
+    } catch (error) {
+      cb(error);
+    }
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename: timestamp-originalname
+    const uniqueName = Date.now() + '-' + file.originalname.replace(/\s+/g, '_');
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    // Only accept MP3 files
+    if (file.mimetype === 'audio/mpeg' || file.originalname.toLowerCase().endsWith('.mp3')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only MP3 files are allowed'));
+    }
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB max file size
+  }
+});
+
 // Middleware
 app.use(express.json());
 app.use(express.static(__dirname)); // Serve static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve uploaded files
 
 // Session storage (in-memory for simplicity)
 const sessions = new Map();
@@ -156,6 +191,29 @@ app.get('/api/user', requireAuth, (req, res) => {
 });
 
 // ===== PLAYLIST ROUTES (Protected) =====
+
+// Upload MP3 file
+app.post('/api/upload-mp3', requireAuth, upload.single('mp3file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    
+    // Return file info
+    res.json({
+      message: 'File uploaded successfully',
+      file: {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        url: `/uploads/${req.file.filename}`
+      }
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
 
 // Get user's playlists
 app.get('/api/playlists', requireAuth, async (req, res) => {
