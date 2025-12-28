@@ -1,12 +1,80 @@
 const user = JSON.parse(localStorage.getItem("loggedUser"));
+const sessionToken = localStorage.getItem("sessionToken");
 
-// Load playlists from localStorage for this specific user
+// Redirect if not logged in
+if (!user || !sessionToken) {
+  window.location.href = "login.html";
+}
+
+// Load playlists from server
 const playlistKey = `playlists_${user.username}`;
-let userPlaylists = JSON.parse(localStorage.getItem(playlistKey)) || {
-  "My Favorites": [],
-  "Watch Later": [],
-  "Music": []
-};
+let userPlaylists = {};
+
+// Load playlists from server
+async function loadPlaylistsFromServer() {
+  try {
+    const response = await fetch('/api/playlists', {
+      headers: {
+        'Authorization': `Bearer ${sessionToken}`
+      }
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        alert('Session expired. Please login again.');
+        localStorage.removeItem("sessionToken");
+        localStorage.removeItem("loggedUser");
+        window.location.href = "login.html";
+        return;
+      }
+      throw new Error('Failed to load playlists');
+    }
+    
+    const data = await response.json();
+    userPlaylists = data.playlists;
+    
+    // Also save to localStorage as backup
+    localStorage.setItem(playlistKey, JSON.stringify(userPlaylists));
+  } catch (error) {
+    console.error('Error loading playlists:', error);
+    // Fallback to localStorage
+    userPlaylists = JSON.parse(localStorage.getItem(playlistKey)) || {
+      "My Favorites": [],
+      "Watch Later": [],
+      "Music": []
+    };
+  }
+}
+
+// Save playlists to server
+async function savePlaylistsToServer() {
+  try {
+    const response = await fetch('/api/playlists', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionToken}`
+      },
+      body: JSON.stringify({ playlists: userPlaylists })
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        alert('Session expired. Please login again.');
+        window.location.href = "login.html";
+        return;
+      }
+      throw new Error('Failed to save playlists');
+    }
+    
+    // Also save to localStorage as backup
+    localStorage.setItem(playlistKey, JSON.stringify(userPlaylists));
+  } catch (error) {
+    console.error('Error saving playlists:', error);
+    // Still save to localStorage as fallback
+    localStorage.setItem(playlistKey, JSON.stringify(userPlaylists));
+  }
+}
 
 const YOUTUBE_API_KEY = "AIzaSyBntAKflManq3YtazoZVdb7j8Qq1yrRNQY";
 
@@ -21,34 +89,43 @@ const results = document.getElementById('results');
 const player = document.getElementById('player');
 const playerModal = document.getElementById('playerModal');
 
-// Restore from QueryString or localStorage
-const params = new URLSearchParams(location.search);
-if (params.get("q")) {
-  query.value = params.get("q");
-  // Try to load cached results first
-  const cachedResults = localStorage.getItem("lastSearchResults");
-  const lastSearch = localStorage.getItem("lastSearch");
+// Initialize the page
+async function initializePage() {
+  // Load playlists first
+  await loadPlaylistsFromServer();
   
-  if (cachedResults && lastSearch === params.get("q")) {
-    // Use cached results
-    console.log('Using cached results');
-    showResults(JSON.parse(cachedResults));
+  // Restore from QueryString or localStorage
+  const params = new URLSearchParams(location.search);
+  if (params.get("q")) {
+    query.value = params.get("q");
+    // Try to load cached results first
+    const cachedResults = localStorage.getItem("lastSearchResults");
+    const lastSearch = localStorage.getItem("lastSearch");
+    
+    if (cachedResults && lastSearch === params.get("q")) {
+      // Use cached results
+      console.log('Using cached results');
+      showResults(JSON.parse(cachedResults));
+    } else {
+      // Make new API call
+      search();
+    }
   } else {
-    // Make new API call
-    search();
-  }
-} else {
-  // Check for last search in localStorage
-  const lastSearch = localStorage.getItem("lastSearch");
-  const cachedResults = localStorage.getItem("lastSearchResults");
-  
-  if (lastSearch && cachedResults) {
-    query.value = lastSearch;
-    // Display cached results without making API call
-    console.log('Using cached results from last session');
-    showResults(JSON.parse(cachedResults));
+    // Check for last search in localStorage
+    const lastSearch = localStorage.getItem("lastSearch");
+    const cachedResults = localStorage.getItem("lastSearchResults");
+    
+    if (lastSearch && cachedResults) {
+      query.value = lastSearch;
+      // Display cached results without making API call
+      console.log('Using cached results from last session');
+      showResults(JSON.parse(cachedResults));
+    }
   }
 }
+
+// Start initialization
+initializePage();
 
 searchBtn.onclick = search;
 
@@ -266,8 +343,8 @@ document.getElementById('confirmAddBtn').onclick = function () {
   }
   userPlaylists[playlistName].push({ id: videoData.id, title: videoData.title, img: videoData.img, rating: 0 });
 
-  // Save to localStorage for this user
-  localStorage.setItem(playlistKey, JSON.stringify(userPlaylists));
+  // Save to server
+  savePlaylistsToServer();
 
   // Close playlist modal
   bootstrap.Modal.getInstance(document.getElementById('playlistModal')).hide();
@@ -286,9 +363,19 @@ document.getElementById('confirmAddBtn').onclick = function () {
 };
 
 function logout() {
-  sessionStorage.removeItem("currentUser");
-  localStorage.removeItem("loggedUser");
-  location.href = "index.html";
+  // Call server logout endpoint
+  fetch('/api/logout', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${sessionToken}`
+    }
+  }).finally(() => {
+    // Clear local storage
+    sessionStorage.removeItem("currentUser");
+    localStorage.removeItem("loggedUser");
+    localStorage.removeItem("sessionToken");
+    location.href = "index.html";
+  });
 }
 
 // Show profile picture in modal

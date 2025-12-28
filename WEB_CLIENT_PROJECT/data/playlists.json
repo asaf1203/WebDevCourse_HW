@@ -4,6 +4,24 @@
     "Watch Later": [],
     "Music": []
   },
-  "user_playlists": {}
+  "user_playlists": {
+    "mouseTrap": {
+      "My Favorites": [
+        {
+          "id": "hLQl3WQQoQ0",
+          "title": "Adele - Someone Like You (Official Music Video)",
+          "img": "https://i.ytimg.com/vi/hLQl3WQQoQ0/mqdefault.jpg",
+          "rating": 5
+        },
+        {
+          "id": "rYEDA3JcQqw",
+          "title": "Adele - Rolling in the Deep (Official Music Video)",
+          "img": "https://i.ytimg.com/vi/rYEDA3JcQqw/mqdefault.jpg",
+          "rating": 0
+        }
+      ],
+      "Watch Later": [],
+      "Music": []
+    }
+  }
 }
-

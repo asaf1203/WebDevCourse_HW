@@ -1,4 +1,4 @@
-document.getElementById("registerForm").addEventListener("submit", function (e) {
+document.getElementById("registerForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const username = document.getElementById("username").value.trim();
@@ -7,26 +7,11 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
     const privateName = document.getElementById("privateName").value.trim();
     const imageUrl = document.getElementById("imageUrl").value.trim();
     const error = document.getElementById("error");
+    const submitBtn = this.querySelector('button[type="submit"]');
 
+    // Client-side validation
     if (!username || !password || !confirmPassword || !privateName || !imageUrl) {
         error.textContent = "All fields are required";
-        return;
-    }
-
-    // Validate image URL format
-    const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
-    if (!urlRegex.test(imageUrl)) {
-        error.textContent = "Please enter a valid image URL (must start with http:// or https://)";
-        return;
-    }
-
-    if (!/\d/.test(password) || !/[a-zA-Z]/.test(password) || !/[!@#$%^&*()_+\-=\[\]{}|;':",.\/<>?]/.test(password)) {
-        error.textContent = "Password must contain at least one letter, one number, and one symbol";
-        return;
-    }
-
-    if (password.length < 6) {
-        error.textContent = "Password must be at least 6 characters";
         return;
     }
 
@@ -35,16 +20,44 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
         return;
     }
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    // Disable submit button during request
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Registering...";
+    error.textContent = "";
 
-    if (users.find(u => u.username === username)) {
-        error.textContent = "Username already exists";
-        return;
+    try {
+        // Make API call to server
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username,
+                password,
+                privateName,
+                imageUrl
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            // Show error from server
+            error.textContent = data.error || 'Registration failed';
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Register";
+            return;
+        }
+
+        // Success - redirect to login
+        alert("Registration successful!");
+        window.location.href = "login.html";
+    } catch (err) {
+        console.error('Registration error:', err);
+        error.textContent = "Network error. Please make sure the server is running.";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Register";
     }
-
-    users.push({ username, password, privateName, imageUrl });
-    localStorage.setItem("users", JSON.stringify(users));
-
-    alert("Registration successful!");
-    window.location.href = "login.html";
 });
+

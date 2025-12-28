@@ -1,12 +1,81 @@
 const user = JSON.parse(localStorage.getItem("loggedUser"));
+const sessionToken = localStorage.getItem("sessionToken");
 
-// Load playlists from localStorage for this specific user
+// Redirect if not logged in
+if (!user || !sessionToken) {
+  window.location.href = "login.html";
+}
+
+// Load playlists from server
 const playlistKey = `playlists_${user.username}`;
-let playlists = JSON.parse(localStorage.getItem(playlistKey)) || {
-  "My Favorites": [],
-  "Watch Later": [],
-  "Music": []
-};
+let playlists = {};
+
+// Load playlists from server
+async function loadPlaylistsFromServer() {
+  try {
+    const response = await fetch('/api/playlists', {
+      headers: {
+        'Authorization': `Bearer ${sessionToken}`
+      }
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Session expired, redirect to login
+        alert('Session expired. Please login again.');
+        localStorage.removeItem("sessionToken");
+        localStorage.removeItem("loggedUser");
+        window.location.href = "login.html";
+        return;
+      }
+      throw new Error('Failed to load playlists');
+    }
+    
+    const data = await response.json();
+    playlists = data.playlists;
+    
+    // Also save to localStorage as backup
+    localStorage.setItem(playlistKey, JSON.stringify(playlists));
+  } catch (error) {
+    console.error('Error loading playlists:', error);
+    // Fallback to localStorage
+    playlists = JSON.parse(localStorage.getItem(playlistKey)) || {
+      "My Favorites": [],
+      "Watch Later": [],
+      "Music": []
+    };
+  }
+}
+
+// Save playlists to server
+async function savePlaylistsToServer() {
+  try {
+    const response = await fetch('/api/playlists', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionToken}`
+      },
+      body: JSON.stringify({ playlists })
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        alert('Session expired. Please login again.');
+        window.location.href = "login.html";
+        return;
+      }
+      throw new Error('Failed to save playlists');
+    }
+    
+    // Also save to localStorage as backup
+    localStorage.setItem(playlistKey, JSON.stringify(playlists));
+  } catch (error) {
+    console.error('Error saving playlists:', error);
+    // Still save to localStorage as fallback
+    localStorage.setItem(playlistKey, JSON.stringify(playlists));
+  }
+}
 
 // Track current sort method
 let currentSort = 'none'; // 'none', 'az', or 'rating'
@@ -174,7 +243,7 @@ function restoreRating(songIndex) {
 // Set rating when star is clicked
 function setRating(songIndex, rating) {
   playlists[current][songIndex].rating = rating;
-  localStorage.setItem(playlistKey, JSON.stringify(playlists));
+  savePlaylistsToServer();
   
   // Update only the stars for this song (no full reload)
   updateStarsDisplay(songIndex, rating);
@@ -206,7 +275,7 @@ function playVideo(videoId) {
 
 function remove(i) {
   playlists[current].splice(i, 1);
-  localStorage.setItem(playlistKey, JSON.stringify(playlists));
+  savePlaylistsToServer();
   renderSidebar();
   load(current);
 }
@@ -215,7 +284,7 @@ function newPlaylist() {
   const name = prompt("Name of playlist:");
   if (!name) return;
   playlists[name] = [];
-  localStorage.setItem(playlistKey, JSON.stringify(playlists));
+  savePlaylistsToServer();
   renderSidebar();
 }
 
@@ -229,7 +298,7 @@ function sortAZ() {
   
   currentSort = 'az';
   updateSortLabel();
-  localStorage.setItem(playlistKey, JSON.stringify(playlists));
+  savePlaylistsToServer();
   renderSongs(); // Just re-render, don't call load()
 }
 
@@ -245,7 +314,7 @@ function sortByRating() {
   
   currentSort = 'rating';
   updateSortLabel();
-  localStorage.setItem(playlistKey, JSON.stringify(playlists));
+  savePlaylistsToServer();
   renderSongs(); // Just re-render, don't call load()
 }
 
@@ -278,9 +347,19 @@ function updateSortLabel() {
 }
 
 function logout() {
-  sessionStorage.removeItem("currentUser");
-  localStorage.removeItem("loggedUser");
-  location.href = "index.html";
+  // Call server logout endpoint
+  fetch('/api/logout', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${sessionToken}`
+    }
+  }).finally(() => {
+    // Clear local storage
+    sessionStorage.removeItem("currentUser");
+    localStorage.removeItem("loggedUser");
+    localStorage.removeItem("sessionToken");
+    location.href = "index.html";
+  });
 }
 
 // Show profile picture in modal
@@ -310,7 +389,10 @@ filterInput.addEventListener('input', function() {
 const params = new URLSearchParams(location.search);
 let current;
 
-function initializePlaylist() {
+async function initializePlaylist() {
+  // Load playlists from server first
+  await loadPlaylistsFromServer();
+  
   const playlistFromQuery = params.get("pl") ? decodeURIComponent(params.get("pl")) : null;
   
   // Check if query string playlist exists
